@@ -1,0 +1,75 @@
+#! /bin/sh
+
+set -e
+
+# /etc/init.d/mail_exposer: start and stop the MailExposer daemon
+
+umask 022
+. /lib/lsb/init-functions
+
+check_mail_exposer_dir() {
+    # Create the mail_exposer empty dir if necessary
+    if [ ! -d /var/lib/mail_exposer ]; then
+        mkdir /var/lib/mail_exposer
+        chmod 0755 /var/lib/mail_exposer
+    fi
+}
+
+check_config() {
+    if [ ! -e /app/config/config.ini ]; then
+        echo "No config file" || exit 1
+    fi
+}
+
+start() {
+        check_mail_exposer_dir
+        check_config
+        log_daemon_msg "Starting MailExposer daemon" "mail_exposer" || true
+        if start-stop-daemon --start --quiet --oknodo --chuid 0:0 --pidfile /run/mail_exposer.pid --exec /usr/bin/python3 /app/mail_exposer.py ; then
+            log_end_msg 0 || true
+        else
+            log_end_msg 1 || true
+        fi
+}
+
+stop() {
+    log_daemon_msg "Stopping MailExposer daemon" "mail_exposer" || true
+    pid=$(cat /var/run/mail_exposer.pid)
+    kill $pid
+    if start-stop-daemon --stop --quiet --oknodo --pidfile /run/mail_exposer.pid --exec /app/mail_exposer.py; then
+        log_end_msg 0 || true
+    else
+        log_end_msg 1 || true
+    fi
+}
+
+export PATH="${PATH:+$PATH:}/usr/bin:/bin"
+
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+
+  reload|force-reload)
+        stop
+        start
+        ;;
+
+  restart)
+        stop
+        start
+        ;;
+
+  status)
+        status_of_proc -p /var/run/mail_exposer.pid mail_exposer mail_exposer && exit 0 || exit $?
+        ;;
+
+  *)
+        log_action_msg "Usage: /etc/init.d/mail_exposer {start|stop|reload|force-reload|restart|status}" || true
+        exit 1
+esac
+
+exit 0
