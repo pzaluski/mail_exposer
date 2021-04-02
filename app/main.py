@@ -104,7 +104,7 @@ def start():
             imap_connection.close_conection()
             timer = 0
             while active and timer < int(config["SETTINGS"]['timer']):
-                timer = timer+1
+                timer = timer + 1
                 sleep(1)
     logger.info('Exiting...')
     os.unlink('/var/run/mail_exposer.pid')
