@@ -11,16 +11,16 @@ from lib.preconfig import Preconfig
 active=True
 
 def clean_up(data_dir):
-    try:
-        if os.path.isfile(data_dir) or os.path.islink(data_dir):
-            os.unlink(data_dir)
-        elif os.path.isdir(data_dir):
-            shutil.rmtree(data_dir)
-    except Exception as e:
-        print('Failed to delete {}. Reason: {}'.format(data_dir, e))
-    finally:
-        mail_dir = data_dir+'/mails'
-        os.makedirs(mail_dir, exist_ok=True)
+    for dir in ['mails','sender','timeline','topics']:
+        try:
+            if os.path.isfile(data_dir+'/'+dir) or os.path.islink(data_dir+'/'+dir):
+                os.unlink(data_dir+'/'+dir)
+            elif os.path.isdir(data_dir+'/'+dir):
+                shutil.rmtree(data_dir+'/'+dir)
+        except Exception as e:
+            print('Failed to delete {}. Reason: {}'.format(data_dir+'/'+dir, e))
+        finally:
+            os.makedirs(data_dir+'/'+dir, exist_ok=True)
     return True
 
 
@@ -29,11 +29,8 @@ def exit_gracefully(signum, frame):
     active=False
 
 def start():
-
-
     preconfig = Preconfig()
     config = preconfig.cfg
-
 
     logger = logging.getLogger()
     formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
@@ -43,7 +40,7 @@ def start():
     logger.addHandler(handler)
 
     data_dir = config['SETTINGS']['working_dir']
-    mail_dir = mail_dir = data_dir+'/mails'
+    mail_dir = data_dir+'/mails'
 
     logger.info('Starting...'+str(active))
     while active:
@@ -107,6 +104,7 @@ def start():
                 timer = timer + 1
                 sleep(1)
     logger.info('Exiting...')
+    clean_up(data_dir)
     os.unlink('/var/run/mail_exposer.pid')
     sys.exit(0)
 

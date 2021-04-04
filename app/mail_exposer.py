@@ -1,11 +1,10 @@
 #!/usr/bin/python3
 
-import os
 import grp
 import signal
-from threading import active_count
 import daemon
 import daemon.pidfile
+from pwd import getpwnam
 from main import start, exit_gracefully
 from lib.preconfig import Preconfig
 
@@ -27,8 +26,8 @@ signal_map = {
 }
 context.signal_map = signal_map
 
-mail_gid = grp.getgrnam('mail').gr_gid
-context.gid = mail_gid
+context.gid = grp.getgrnam('mail_exposer').gr_gid
+context.uid = getpwnam('root').pw_uid
 
 with context:
     start()

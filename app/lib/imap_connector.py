@@ -1,5 +1,6 @@
 import imaplib
 import datetime
+import base64
 from quopri import decodestring
 
 
@@ -9,8 +10,8 @@ class ImapConnector:
         self.logger = logger
         self.host = config['IMAP']['host']
         self.port = config['IMAP']['port']
-        self.username = config['IMAP']['username']
-        self.password = config['IMAP']['password']
+        self.username = base64.b64decode(config['IMAP']['username']).decode('utf-8')
+        self.password = base64.b64decode(config['IMAP']['password']).decode('utf-8')
         self.connection = imaplib.IMAP4_SSL(
             host=self.host,
             port=self.port

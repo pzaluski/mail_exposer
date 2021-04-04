@@ -1,6 +1,8 @@
 server {
-    listen 80;
-    listen [::]:80;
+    listen       443 ssl;
+    server_name  localhost;
+    ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+    ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
 
     root /var/lib/mail_exposer;
 
@@ -20,4 +22,9 @@ server {
 
     # Allow autocreate folder here if necessary
     create_full_put_path    on;
+
+    # Basic auth
+    auth_basic           "Restricted";
+    auth_basic_user_file /etc/nginx/htpasswd;
+
 }

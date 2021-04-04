@@ -4,3 +4,4 @@ __pycache__/
 *$py.class
 app/config/config.ini
 data/
+nginx/htpasswd
