@@ -12,7 +12,9 @@ server {
     dav_ext_methods PROPFIND OPTIONS;
 
     # In this folder, newly created folder or file is to have specified permission. If n>
-    dav_access     all:rw;
+    dav_access      user:rw group:rw all:r;
+
+    autoindex on;
 
     # Temporary folder
     client_body_temp_path   /tmp/client_body_temp;

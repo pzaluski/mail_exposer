@@ -5,3 +5,5 @@ __pycache__/
 app/config/config.ini
 data/
 nginx/htpasswd
+nginx/nginx-selfsigned.key
+nginx/nginx-selfsigned.crt

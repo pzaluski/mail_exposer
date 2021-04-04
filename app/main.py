@@ -1,11 +1,10 @@
 import os
 import sys
 import shutil
-import logging
 from time import sleep
 from lib.mail import Mail
 from lib.imap_connector import ImapConnector
-from lib.preconfig import Preconfig
+from lib.preconfig import Preconfig, Logger
 
 
 active=True
@@ -28,26 +27,22 @@ def exit_gracefully(signum, frame):
     global active
     active=False
 
+
 def start():
     preconfig = Preconfig()
     config = preconfig.cfg
-
-    logger = logging.getLogger()
-    formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
-    handler = logging.FileHandler(config['SETTINGS']['logfile'])
-    handler.setFormatter(formatter)
-    logger.setLevel(logging.INFO)
-    logger.addHandler(handler)
+    logger = Logger(config)
+    log = logger.log
 
     data_dir = config['SETTINGS']['working_dir']
     mail_dir = data_dir+'/mails'
 
-    logger.info('Starting...'+str(active))
+    log.info('Starting...'+str(active))
     while active:
         try:
             clean_up(data_dir)
 
-            imap_connection = ImapConnector(config, logger)
+            imap_connection = ImapConnector(config, log)
             imap_connection.open_connection()
             mailboxes = imap_connection.list_mailboxes()
 
@@ -57,7 +52,7 @@ def start():
 
                 for msgid in messages:
                     message = imap_connection.retrieve_message(msgid)
-                    mail = Mail(config, logger, message)
+                    mail = Mail(config, log, message)
                     mail.parse()
                     file_content = mail.text
 
@@ -96,14 +91,14 @@ def start():
                     os.symlink(mail_dir+'/'+file_name,
                                topics_dir+'/'+file_name)
         except Exception as err:
-            logger.error('ERROR:', err)
+            log.error('ERROR:', err)
         finally:
             imap_connection.close_conection()
             timer = 0
             while active and timer < int(config["SETTINGS"]['timer']):
                 timer = timer + 1
                 sleep(1)
-    logger.info('Exiting...')
+    log.info('Exiting...')
     clean_up(data_dir)
     os.unlink('/var/run/mail_exposer.pid')
     sys.exit(0)

@@ -42,14 +42,14 @@ class ImapConnector:
         self.connection.select(mailbox=mailbox, readonly=True)
         _, result = self.connection.search(None, 'ALL')
         messages = result[0].split()
-        self.logger.info("Imap messsages id's collected from {mailbox}: {messages}".format(
+        self.logger.debug("Imap messsages id's collected from {mailbox}: {messages}".format(
             messages=result[0].decode("utf-8"), mailbox=mailbox))
 
         return messages
 
     def retrieve_message(self, msgid):
         _, data = self.connection.fetch(msgid, '(RFC822)')
-        self.logger.info("Messsage id: {msgid} retrieved.".format(
+        self.logger.debug("Messsage id: {msgid} retrieved.".format(
             msgid=msgid.decode("utf-8")))
 
         return data[0][1].decode()

@@ -14,7 +14,7 @@ config = preconfig.cfg
 
 context = daemon.DaemonContext(
     working_directory=config['SETTINGS']['working_dir'],
-    pidfile=daemon.pidfile.PIDLockFile('/var/run/mail_exposer.pid'),
+    pidfile=daemon.pidfile.PIDLockFile(config['SETTINGS']['pidfile']),
     umask=0o002
 )
 
@@ -26,7 +26,7 @@ signal_map = {
 }
 context.signal_map = signal_map
 
-context.gid = grp.getgrnam('mail_exposer').gr_gid
+context.gid = grp.getgrnam('mail').gr_gid
 context.uid = getpwnam('root').pw_uid
 
 with context:
