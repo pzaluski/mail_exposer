@@ -1,8 +1,9 @@
 [SETTINGS]
-debug           : True
 timer           : 60
 working_dir     : /var/lib/mail_exposer
 logfile         : /var/log/mail_exposer.log
+loglevel        : DEBUG
+pidfile         : /var/run/mail_exposer.pid
 
 [IMAP]
 host: imap.fastmail.com

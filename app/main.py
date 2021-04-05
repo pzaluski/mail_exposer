@@ -1,8 +1,8 @@
 import os
 import sys
-from time import sleep
 import hashlib
 import yaml
+from time import sleep
 from lib.mail import Mail
 from lib.imap_connector import ImapConnector
 from lib.preconfig import Preconfig, Logger
@@ -168,7 +168,7 @@ def start():
 
     # clean up on exit
     log.info('Exiting...')
-    os.unlink('/var/run/mail_exposer.pid')
+    os.unlink(config['SETTINGS']['pidfile'])
     sys.exit(0)
 
 
