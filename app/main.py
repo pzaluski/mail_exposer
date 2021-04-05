@@ -11,7 +11,7 @@ from lib.preconfig import Preconfig, Logger
 active = True
 
 
-def remove_empty_folders(path, removeRoot=True):
+def remove_empty_folders(log, path, removeRoot=True):
     if not os.path.isdir(path):
         return
 
@@ -21,22 +21,24 @@ def remove_empty_folders(path, removeRoot=True):
         for f in files:
             fullpath = os.path.join(path, f)
             if os.path.isdir(fullpath):
-                remove_empty_folders(fullpath)
+                remove_empty_folders(log, fullpath)
 
     # if folder empty, delete it
     files = os.listdir(path)
     if len(files) == 0 and removeRoot:
-        print(f"Removing empty folder: {path}")
+        log.debug(f"Removing empty folder: {path}")
         os.rmdir(path)
 
 
-def remove_files(files_to_remove):
+def remove_files(log, files_to_remove):
     for file in files_to_remove:
         try:
             if os.path.isfile(file) or os.path.islink(file):
                 os.unlink(file)
+                log.debug(f"Removing file: {file}")
+
         except Exception as e:
-            print(f"Failed to delete {file}. Reason: {e}")
+            log.error(f"Failed to delete {file}. Reason: {e}")
     return True
 
 
@@ -62,6 +64,8 @@ def start():
     for dir in ['mails', 'sender', 'timeline', 'topics']:
         if not os.path.isdir(f"{data_dir}/{dir}"):
             os.makedirs(f"{data_dir}/{dir}", exist_ok=True)
+            log.debug(f"Creating directory: {data_dir}/{dir}")
+
 
     log.info('Starting...')
     while active:
@@ -117,6 +121,8 @@ def start():
                     # mail file creation
                     with open(f"{mail_dir}/{file_name}", 'w') as file:
                         file.write(file_content)
+                        log.debug(f"Creating file: {mail_dir}/{file_name}")
+
                     file_list.append(f"{mail_dir}/{file_name}")
 
                     # dir structure preparation
@@ -134,6 +140,7 @@ def start():
                         os.makedirs(symlink_dir, exist_ok=True)
                         os.link(f"{mail_dir}/{file_name}",
                                 f"{symlink_dir}/{file_name}")
+                        log.debug(f"Creating file: {symlink_dir}/{file_name}")
                         file_list.append(f"{symlink_dir}/{file_name}")
 
                     md5_sync_map[md5] = file_list
@@ -145,8 +152,8 @@ def start():
             # remove deleted files and empty dirs
             files_to_remove_list = [
                 file for file_list in md5_sync_map_previous.values() for file in file_list]
-            remove_files(files_to_remove_list)
-            remove_empty_folders(data_dir)
+            remove_files(log, files_to_remove_list)
+            remove_empty_folders(log, data_dir)
 
         except Exception as err:
             log.error(f'{str(err)}')
