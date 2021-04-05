@@ -6,7 +6,7 @@ create file from `config.ini.org` -> `config.ini` with your credentials
 
 or
 
-    sudo docker-compose up --build
+    sudo docker-compose up --build --detach
 
 # Instruction:
 Config locatated in `/data/mail_exposer/config/config.ini`
