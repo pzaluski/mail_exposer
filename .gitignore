@@ -8,3 +8,4 @@ nginx/htpasswd
 nginx/nginx-selfsigned.key
 nginx/nginx-selfsigned.crt
 .vscode/
+.DS_Store
