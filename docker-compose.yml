@@ -4,5 +4,5 @@ services:
     ports:
       - "8443:443"
     volumes:
-      - /data/mail_exposer/config:/app/config
-      - /data/mail_exposer/logs:/var/log/mail_exposer
+      - /opt/mail_exposer/config:/app/config
+      - /opt/mail_exposer/logs:/var/log/mail_exposer
