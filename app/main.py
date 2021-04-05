@@ -12,14 +12,14 @@ active=True
 def clean_up(data_dir):
     for dir in ['mails','sender','timeline','topics']:
         try:
-            if os.path.isfile(data_dir+'/'+dir) or os.path.islink(data_dir+'/'+dir):
-                os.unlink(data_dir+'/'+dir)
-            elif os.path.isdir(data_dir+'/'+dir):
-                shutil.rmtree(data_dir+'/'+dir)
+            if os.path.isfile(f"{data_dir}/{dir}") or os.path.islink(f"{data_dir}/{dir}"):
+                os.unlink(f"{data_dir}/{dir}")
+            elif os.path.isdir(f"{data_dir}/{dir}"):
+                shutil.rmtree(f"{data_dir}/{dir}")
         except Exception as e:
-            print('Failed to delete {}. Reason: {}'.format(data_dir+'/'+dir, e))
+            print(f"Failed to delete {data_dir}/{dir}. Reason: {e}")
         finally:
-            os.makedirs(data_dir+'/'+dir, exist_ok=True)
+            os.makedirs(f"{data_dir}/{dir}", exist_ok=True)
     return True
 
 
@@ -35,9 +35,11 @@ def start():
     log = logger.log
 
     data_dir = config['SETTINGS']['working_dir']
-    mail_dir = data_dir+'/mails'
+    data_dir = os.path.join(os.path.abspath(
+            os.path.dirname(__file__)), data_dir)
+    mail_dir = f"{data_dir}/mails"
 
-    log.info('Starting...'+str(active))
+    log.info('Starting...')
     while active:
         try:
             clean_up(data_dir)
@@ -48,29 +50,26 @@ def start():
 
             for mailbox in mailboxes:
 
-                messages = imap_connection.retrieve_messages_list(mailbox)
+                msgids = imap_connection.retrieve_messages_list(mailbox)
 
-                for msgid in messages:
+                for msgid in msgids:
                     message = imap_connection.retrieve_message(msgid)
                     mail = Mail(config, log, message)
                     mail.parse()
                     file_content = mail.text
 
-                    file_name_prefix = "{sender}-{subject}".format(
-                        sender=mail.sender, subject=mail.subject)
-
+                    file_name_prefix = f"{mail.sender}-{mail.subject}"
                     file_name = file_name_prefix
 
                     number = 0
-                    while os.path.exists(mail_dir+'/'+file_name):
-                        file_name = file_name_prefix + \
-                            "-{number}".format(number=number)
+                    while os.path.exists(f"{mail_dir}/{file_name}"):
+                        file_name = f"{file_name_prefix}-{number}"
                         number = number + 1
 
-                    with open(mail_dir+'/'+file_name, 'w') as file:
+                    with open(f"{mail_dir}/{file_name}", 'w') as file:
                         file.write(file_content)
 
-                    timeline_dir = '{data_dir}/timeline/{year}/{month}/{day}'.format(
+                    timeline_dir = "{data_dir}/timeline/{year}/{month}/{day}".format(
                         data_dir=data_dir,
                         year=mail.date.strftime('%Y'),
                         month=mail.date.strftime('%m'),
@@ -78,24 +77,25 @@ def start():
                     )
 
                     os.makedirs(timeline_dir, exist_ok=True)
-                    os.symlink(mail_dir+'/'+file_name,
-                               timeline_dir+'/'+file_name)
+                    os.symlink(f"{mail_dir}/{file_name}",  
+                               f"{timeline_dir}/{file_name}")
 
-                    sender_dir = data_dir+'/sender/'+mail.sender
+                    sender_dir = f"{data_dir}/sender/{mail.sender}"
                     os.makedirs(sender_dir, exist_ok=True)
-                    os.symlink(mail_dir+'/'+file_name,
-                               sender_dir+'/'+file_name)
+                    os.symlink(f"{mail_dir}/{file_name}",
+                               f"{sender_dir}/{file_name}")
 
-                    topics_dir = data_dir+'/topics/'+mailbox
+                    topics_dir = f"{data_dir}/topics/{mailbox}"
                     os.makedirs(topics_dir, exist_ok=True)
-                    os.symlink(mail_dir+'/'+file_name,
-                               topics_dir+'/'+file_name)
+                    os.symlink(f"{mail_dir}/{file_name}",
+                               f"{topics_dir}/{file_name}")
+
         except Exception as err:
             log.error('ERROR:', err)
         finally:
             imap_connection.close_conection()
             timer = 0
-            while active and timer < int(config["SETTINGS"]['timer']):
+            while active and timer < int(config["SETTINGS"]["timer"]):
                 timer = timer + 1
                 sleep(1)
     log.info('Exiting...')

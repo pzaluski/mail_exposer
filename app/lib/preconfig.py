@@ -18,7 +18,8 @@ class Preconfig():
 
 class Logger():
     def __init__(self, config):
-        self.logfile = config['SETTINGS']['logfile']
+        self.logfile = os.path.join(os.path.abspath(
+            os.path.dirname(__file__)), config['SETTINGS']['logfile'])
         self.loglevel = config['SETTINGS']['loglevel']
         self._logger = logging.getLogger()
         formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")

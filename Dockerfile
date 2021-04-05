@@ -24,7 +24,6 @@ COPY nginx/default /etc/nginx/sites-enabled/
 COPY nginx/htpasswd /etc/nginx/
 COPY service/mail_exposer /etc/init.d/
 RUN chmod +x /etc/init.d/mail_exposer
-
 COPY service/wrapper.sh /app/wrapper.sh
 RUN chmod +x /app/wrapper.sh
 
