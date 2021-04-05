@@ -20,7 +20,7 @@ class ImapConnector:
     def open_connection(self):
         try:
             self.connection.login(self.username, self.password)
-            self.logger.info("{date} Imap connection opened.".format(date=datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")))
+            self.logger.info("Imap connection opened.")
         except Exception as err:
             self.logger.error('ERROR:', err)
         return self
