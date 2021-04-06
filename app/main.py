@@ -138,7 +138,7 @@ def start():
                     # create links for files
                     for symlink_dir in [timeline_dir, sender_dir, topics_dir]:
                         os.makedirs(symlink_dir, exist_ok=True)
-                        os.link(f"{mail_dir}/{file_name}",
+                        os.symlink(f"{mail_dir}/{file_name}",
                                 f"{symlink_dir}/{file_name}")
                         log.debug(f"Creating file: {symlink_dir}/{file_name}")
                         file_list.append(f"{symlink_dir}/{file_name}")
@@ -168,7 +168,6 @@ def start():
 
     # clean up on exit
     log.info('Exiting...')
-    os.unlink(config['SETTINGS']['pidfile'])
     sys.exit(0)
 
 

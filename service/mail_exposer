@@ -22,21 +22,19 @@ check_config() {
 }
 
 start() {
-        check_mail_exposer_dir
-        check_config
-        log_daemon_msg "Starting MailExposer daemon" "mail_exposer" || true
-        if start-stop-daemon --start --quiet --oknodo --chuid 0:0 --pidfile /run/mail_exposer.pid --exec /usr/bin/python3 /app/mail_exposer.py ; then
-            log_end_msg 0 || true
-        else
-            log_end_msg 1 || true
-        fi
+    check_mail_exposer_dir
+    check_config
+    log_daemon_msg "Starting MailExposer daemon" "mail_exposer" || true
+    if /usr/bin/python3 /app/mail_exposer.py ; then
+        log_end_msg 0 || true
+    else
+        log_end_msg 1 || true
+    fi
 }
 
 stop() {
     log_daemon_msg "Stopping MailExposer daemon" "mail_exposer" || true
-    pid=$(cat /var/run/mail_exposer.pid)
-    kill $pid
-    if start-stop-daemon --stop --quiet --oknodo --pidfile /run/mail_exposer.pid --exec /app/mail_exposer.py; then
+    if kill $(cat /var/run/mail_exposer.pid); then
         log_end_msg 0 || true
     else
         log_end_msg 1 || true
