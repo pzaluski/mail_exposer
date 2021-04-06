@@ -18,11 +18,17 @@ context = daemon.DaemonContext(
     umask=0o002
 )
 
+# SIGHUP	1	Hang up detected on controlling terminal or death of controlling process
+# SIGINT	2	Issued if the user sends an interrupt signal (Ctrl + C)
+# SIGQUIT	3	Issued if the user sends a quit signal (Ctrl + D)
+# SIGKILL	9	If a process gets this signal it must quit immediately and will not perform any clean-up operations
+# SIGTERM	15	Software termination signal (sent by kill by default)
 
 signal_map = {
-    signal.SIGTERM: exit_gracefully,
-    signal.SIGHUP: exit_gracefully,
-    signal.SIGTSTP: exit_gracefully
+    signal.SIGTERM: exit_gracefully,    
+    signal.SIGINT: exit_gracefully,
+    signal.SIGQUIT: exit_gracefully,
+    signal.SIGHUP: exit_gracefully
 }
 context.signal_map = signal_map
 
