@@ -124,12 +124,12 @@ def start():
                         log.debug(f"Creating file: {mail_dir}/{file_name}")
 
                     file_list.append(f"{mail_dir}/{file_name}")
-
+                    
                     # dir structure preparation
                     timeline_dir = "{data_dir}/timeline/{year}/{month}/{day}".format(
                         data_dir=data_dir,
                         year=mail.date.strftime('%Y'),
-                        month=mail.date.strftime('%m'),
+                        month=mail.date.strftime('%b'),
                         day=mail.date.strftime('%d')
                     )
                     sender_dir = f"{data_dir}/sender/{mail.sender}"
@@ -138,7 +138,7 @@ def start():
                     # create links for files
                     for symlink_dir in [timeline_dir, sender_dir, topics_dir]:
                         os.makedirs(symlink_dir, exist_ok=True)
-                        os.symlink(f"{mail_dir}/{file_name}",
+                        os.link(f"{mail_dir}/{file_name}",
                                 f"{symlink_dir}/{file_name}")
                         log.debug(f"Creating file: {symlink_dir}/{file_name}")
                         file_list.append(f"{symlink_dir}/{file_name}")

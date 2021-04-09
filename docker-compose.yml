@@ -6,4 +6,4 @@ services:
     volumes:
       - /opt/mail_exposer/config:/app/config
       - /opt/mail_exposer/logs:/var/log/mail_exposer
-      - /opt/mail_exposer/data:/var/lib/mail_exposer
+      #- /opt/mail_exposer/data:/var/lib/mail_exposer
